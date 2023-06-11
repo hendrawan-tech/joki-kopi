@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +19,4 @@ Route::get('/', function () {
 
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
-    Artisan::call('view:clear');
-    Artisan::call('cache:clear');
-    Artisan::call('config:clear');
 });
