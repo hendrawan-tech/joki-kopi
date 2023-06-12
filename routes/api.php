@@ -20,6 +20,8 @@ Route::post('/register', [ApiController::class, 'register']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [ApiController::class, 'user']);
+    Route::post('/user', [ApiController::class, 'updateUser']);
     Route::get('/products', [ApiController::class, 'products']);
     Route::get('/categories', [ApiController::class, 'categories']);
+    Route::get('/home', [ApiController::class, 'home']);
 });

@@ -10,7 +10,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ApiController extends Controller
 {
@@ -89,7 +91,49 @@ class ApiController extends Controller
         }
     }
 
+    function updateUser(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'name' => 'required',
+                'avatar' => 'file|between:0,2048|mimes:jpeg,jpg,png',
+            ]);
+            $user = $request->user();
+            if ($request['avatar']) {
+                if ($user->avatar != null) {
+                    Storage::delete($user->avatar);
+                }
+                $filetype = $request->file('avatar')->extension();
+                $text = Str::random(16) . '.' . $filetype;
+                Storage::putFileAs('public', $request->file('avatar'), $text);
+                $data['avatar'] = $text;
+            }
+            $user = $user->update($data);
+            return ResponseFormatter::success();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     // product
+    public function home(Request $request)
+    {
+        $popular = Product::orderBy('view', 'DESC')->paginate($request->page);
+        $news = Product::orderBy('created_at', 'DESC')->paginate($request->page);
+
+        if ($popular && $news) {
+            return ResponseFormatter::success([
+                'popular' => $popular,
+                'news' => $news,
+            ]);
+        } else {
+            return ResponseFormatter::error();
+        }
+    }
+
     public function products(Request $request)
     {
         $products = [];
